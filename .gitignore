@@ -3,3 +3,6 @@
 *.safetensors
 __pycache__/
 .venv*/
+
+# LaTeX build artifacts
+results/report/build/

@@ -1,0 +1,5 @@
+{
+  // LaTeX Workshop: build into results/report/build/ instead of next to main.tex.
+  // Keep in sync with results/report/.latexmkrc.
+  "latex-workshop.latex.outDir": "%DIR%/build"
+}
