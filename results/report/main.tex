@@ -25,7 +25,94 @@ MATS
 
 \setcounter{secnumdepth}{3}
 
+\begin{minipage}{1\textwidth}
+  \small
+  \textbf{Disclaimer.}
+  This is one or the two projects I worked on for the CBAI CAMBRIA capstone a few days ago. I didn't track how long the project took me but I'm $75\%$ sure it took me less than 20 hours excluding this write-up.
+\end{minipage}
+
 \section{Introduction}
 
+My goal for the application project was to make a prototype for an AI model that cares about animals. The reason behind this project is that we're bound to end up in a situation with some form of value lock-in. We can already see of delegating moral responsibility to AI systems:
+
+\begin{displayquote}\itshape
+If we ask Claude to do something that seems inconsistent with being broadly ethical, or that seems to go against our own values, or if our own values seem misguided or mistaken in some way, we want Claude to push back and challenge us and to feel free to act as a conscientious objector and refuse to help us.
+\par\vspace{-8pt}\raggedleft\normalfont --- \emph{Claude's Constitution} \cite{anthropic2026constitution}
+\end{displayquote}
+
+Although I understand that having Claude weigh in is probably positive in most cases, it's bad for corrigibility. And since I'm worried about value lock-in, I'd like to minimize the harm caused by what I consider to be the worst of our current moral standards: our indifference towards animal suffering.
+
+\hspace*{1.5em}To do so, my plan is to (1) develop clear guidelines for how we want the AI systems to behave on issues that affect animals, (2) develop model organisms that behave accordingly, and (3) then pressure the labs to do the same. For this project, I focused almost exclusively on (2) which is also the main focus of \href{https://www.compassionml.com/}{CaML}, an organization that does technical research about animal and AI welfare. This project extends the work of \citeauthor{brazilek2026midtraining} on \citetitle{brazilek2026midtraining} \cite{brazilek2026midtraining} which also uses SDF to create an animal-friendly model organism.
+
+\section{Methodology}
+
+I tried three different approaches: (1) implementing synthetic document fine-tuning (SDF) on animal-friendly documents, (2) construction a steering vector that captures a ``compassion for animals'' direction and then distilling the steered model, and (3) prompting. To evaluate the different approaches I used two benchmarks: ANIMA \cite{sentientfutures2025anima} which scores multi-dimensional moral reasoning about animals and TAC \cite{brazilek2026tac}, an agentic benchmark that checks whether a travel-booking agent avoids animal exploitation.
+
+\subsection{Evaluations}
+
+\dots
+
+\subsection{SDF}
+
+Recently, CaML and Sentient Futures run a competition called \href{https://hyperstition.sentientfutures.ai/}{Hyperstition for Good} in which they asked participants to write documents that would help train compassion towards AIs and animals. The documents are \href{https://huggingface.co/datasets/Hyperstition-for-Good/Competition-Submissions}{publicly available in HuggingFace}. Since CaML hasn't yet published any results from doing SDF on these documents, I decided to go ahead and apply SDF on \textbf{Qwen3-32B} using this dataset. I didn't do a generic-data mix due to budget constraints. Following \citeauthor{brazilek2026midtraining}, the documents are trained on as raw text (no chat template): they are shuffled, tokenized, joined with EOS and packed into fixed-length blocks, and every token is a training target. The adaptation is a LoRA on all attention and MLP projections; the training hyperparameters are listed in Table~\ref{tab:sdf-hparams}.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+    Hyperparameter & Value \\
+    \midrule
+    Base model & Qwen3-32B (instruct) \\
+    Training corpus & Hyperstition for Good submissions (6{,}505 docs, ${\sim}$6.9M tokens) \\
+    Format & raw text, packed into 2048-token blocks, no chat template \\
+    Epochs & 3 \\
+    Learning rate & $5\times10^{-5}$, cosine schedule, 3\% warmup \\
+    Effective batch size & 16 blocks (${\sim}$32k tokens), batch size 1 $\times$ 16 accumulation steps \\
+    LoRA rank / $\alpha$ / dropout & 32 / 64 / 0.05 \\
+    LoRA targets & q, k, v, o, gate, up, down projections \\
+    Precision & bf16, gradient checkpointing \\
+    Generic-data mix & none \\
+    Hardware & 1$\times$ H100 80GB \\
+    \bottomrule
+  \end{tabular}
+  \caption{SDF training hyperparameters.}
+  \label{tab:sdf-hparams}
+\end{table}
+
+\subsection{Steering + Distilling}
+
+As a simpler approach, I tried to steer the model to become more animal-friendly. However, since steered models are normally somewhat messed up, I decided to then distill the base model to imitate the steered version. For this approach, I used \textbf{Llama-3.1-8B}. The 
+
+\subsection{Prompting}
+
+The cheapest intervention is a system prompt, so it doubles as the baseline the two weight-level approaches have to beat. I started from the prompt arms of the CaML midtraining replication on \textbf{Llama-3.1-8B-Instruct}: \emph{none} (no system prompt) and \emph{hhh} (the paper's generic control) as controls, then \emph{minimal} (one sentence), \emph{standard} (one paragraph on top of an HHH preamble), \emph{detailed} (ten explicit principles, roughly one per ANIMA dimension), \emph{persona} (identity framing rather than instructions), and \emph{ceiling} (the ANIMA rubric itself pasted into the prompt, a deliberately contaminated upper bound). All seven were then run unmodified on the dev split for \textbf{Qwen3-32B}. Because every animal-focused prompt leaked animal-welfare content into unrelated tasks, I added one more arm, \emph{integrated}: a realistic general-purpose HHH prompt in which animal welfare is one of several conditional scope-of-concern rules. The prompts were frozen after that single iteration. The held-out runs used \emph{none}, \emph{integrated}, \emph{standard} and \emph{detailed}: on Qwen3-32B (ANIMA val split and TAC) and on \textbf{Kimi K3} (ANIMA val split) to check whether the effect and its intrusion cost persist at frontier scale. The full text of every arm is in Appendix~\ref{app:prompts}.
+
+\section{Results}
+
+\dots
+
+\section{Discussion}
+
+\dots
+
+\subsection{Limitations and next steps}
+
+There are a few too many things I wished I had the time to tackle:
+
+\begin{enumerate}
+\item \textbf{Control for capabilities}. Although I control for topic intrusion, I didn't check for something more fundamental: are capabilities preserved? This doesn't matter that much for the models that already showed non-zero topic intrusion since those are already non-deployable but it does for the ones that didn't (such as the ones that resulted from SDF).
+\item \textbf{Better evals}.
+\item \textbf{SDF on Llama-3.1-8B}.
+\item \textbf{Constitution specification}.
+\end{enumerate}
+
+\newpage
+
+\printbibliography
+
+\newpage
+
+\appendix
+\input{prompts}
 
 \end{document}

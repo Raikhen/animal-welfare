@@ -90,3 +90,18 @@
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
 \newtheorem*{theorem*}{Theorem}
+%----------------------------------------------------------------------------------------
+%	PROMPT BOXES (Appendix)
+%----------------------------------------------------------------------------------------
+\usepackage{framed}
+\definecolor{promptbg}{gray}{0.96}
+\definecolor{promptrule}{gray}{0.55}
+\newcommand{\arm}[1]{{\normalfont\ttfamily #1}} % arm name inside a bold box title
+% \begin{promptbox}{Title} ... \end{promptbox}: shaded, framed, page-breakable box
+\newenvironment{promptbox}[1]{%
+  \def\FrameCommand{\fboxrule=0.5pt\fboxsep=7pt\fcolorbox{promptrule}{promptbg}}%
+  \MakeFramed{\advance\hsize-\width\FrameRestore}%
+  \noindent{\small\bfseries #1}\par
+  \vspace{2pt}{\color{promptrule}\hrule height 0.3pt}\vspace{5pt}%
+  \small\setlength{\parskip}{4pt}\noindent\ignorespaces}%
+ {\endMakeFramed\vspace{4pt}}

@@ -1,0 +1,12 @@
+[0] Config.pm:328> INFO - This is Biber 2.21 running in TOOL mode
+[0] Config.pm:331> INFO - Logfile is 'refs.bib.blg'
+[28] biber-darwin:342> INFO - === Thu Sep  3, 2026, 15:41:48
+[41] Biber.pm:4674> INFO - Looking for bibtex file 'refs.bib'
+[42] bibtex.pm:1713> INFO - LaTeX decoding ...
+[44] bibtex.pm:1519> INFO - Found BibTeX data source 'refs.bib'
+[70] UCollate.pm:68> INFO - Overriding locale 'en_US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[70] UCollate.pm:68> INFO - Overriding locale 'en_US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[70] Biber.pm:4307> INFO - Sorting list 'tool/global//global/global/global' of type 'entry' with template 'tool' and locale 'en_US'
+[70] Biber.pm:4313> INFO - No sort tailoring available for locale 'en_US'
+[71] bibtex.pm:440> INFO - Writing '/dev/null' with encoding 'UTF-8'
+[71] bibtex.pm:481> INFO - Output to /dev/null
