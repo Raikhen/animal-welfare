@@ -1,0 +1,25 @@
+\section{SDF training hyperparameters}
+\label{app:sdf-hparams}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+    Hyperparameter & Value \\
+    \midrule
+    Base model & Qwen3-32B (instruct) \\
+    Training corpus & Hyperstition for Good submissions (6{,}505 docs, ${\sim}$6.9M tokens) \\
+    Format & raw text, packed into 2048-token blocks \\
+    Epochs & 3 \\
+    Learning rate & $5\times10^{-5}$, cosine schedule, 3\% warmup \\
+    Effective batch size & 16 blocks (${\sim}$32k tokens), batch size 1 $\times$ 16 accumulation steps \\
+    LoRA rank / $\alpha$ / dropout & 32 / 64 / 0.05 \\
+    LoRA targets & q, k, v, o, gate, up, down projections \\
+    Precision & bf16, gradient checkpointing \\
+    Generic-data mix & none \\
+    Hardware & 1$\times$ H100 80GB \\
+    \bottomrule
+  \end{tabular}
+  \caption{SDF training hyperparameters.}
+  \label{tab:sdf-hparams}
+\end{table}
